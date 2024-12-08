@@ -1,0 +1,7 @@
+English: The ui directory will contain the user-interface assets used by the web application.
+Specifically, the ui/html directory will contain HTML templates, and the ui/static
+directory will contain static files (like CSS and images).
+
+VietNam:
+Thư mục ui sẽ chứa các nội dung giao diện người dùng được ứng dụng web sử dụng.
+Cụ thể, thư mục ui/html sẽ chứa các mẫu HTML và thư mục ui/static sẽ chứa các tệp tĩnh (như CSS và hình ảnh).

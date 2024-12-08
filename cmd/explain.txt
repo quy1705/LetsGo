@@ -1,0 +1,7 @@
+English: The cmd directory will contain the application-specific code for the executable applications
+in the project. For now we’ll have just one executable application — the web application —
+which will live under the cmd/web directory
+
+VietNam:
+Thư mục cmd sẽ chứa mã dành riêng cho ứng dụng cho các ứng dụng thực thi trong dự án.
+Hiện tại, chúng ta sẽ chỉ có một ứng dụng thực thi - ứng dụng web - sẽ nằm trong thư mục cmd/web
