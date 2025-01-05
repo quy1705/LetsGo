@@ -1,6 +1,8 @@
 package main
 
 import (
+	"LetsGo/internal/models"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -12,7 +14,14 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
-
+	snippets, err := app.snippets.Latest()
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	for _, snippet := range snippets {
+		fmt.Fprintf(w, "%+v\n", snippet)
+	}
 	// Initialize a slice containing the paths to the two files. It's important
 	// to note that the file containing our base template must be the *first*
 	// file in the slice.
@@ -54,12 +63,23 @@ func (app *application) view(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil || id < 0 {
+	if err != nil || id < 1 {
 		app.notFound(w)
 		return
 	}
-	fmt.Fprintf(w, "Snippet %d", id)
-
+	// Use the SnippetModel object's Get method to retrieve the data for a
+	// specific record base on its ID. if no matching record is found,
+	// return a 404 not found response
+	snippet, err := app.snippets.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+	fmt.Fprintf(w, "%+v", snippet)
 }
 
 func (app *application) create(w http.ResponseWriter, r *http.Request) {
@@ -71,5 +91,19 @@ func (app *application) create(w http.ResponseWriter, r *http.Request) {
 		//w.Write([]byte("403 method not allowed"))
 		return
 	}
+	// Create some variables holding dummy data. We'll remove these later on
+	// during the build.
+	title := "O snail"
+	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
+	expires := 7
+	// Pass the data to the SnippetModel.Insert() method, receiving the
+	// ID of the new record back.
+	id, err := app.snippets.Insert(title, content, expires)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	// Redirect the user to the relevant page for the snippet.
+	http.Redirect(w, r, fmt.Sprintf("/snippetView?id=%d", id), http.StatusSeeOther)
 	w.Write([]byte("Create information"))
 }
